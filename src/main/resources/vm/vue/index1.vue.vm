@@ -1,0 +1,302 @@
+<template>
+    <basic-container>
+        <avue-crud
+                :table-loading="tableLoading"
+                ref="${businessName}Table"
+                v-model="form"
+                :data="${businessName}List"
+                :page="page"
+                @row-update="rowUpdate"
+                @row-save="rowSave"
+                @row-del="rowDel"
+                @size-change="sizeChange"
+                @current-change="currentChange"
+                @search-change="searchChange"
+                @search-reset="searchReset"
+                @selection-change="selectionChange"
+                :permission="permissionList"
+                :option="option">
+            <template slot="menuLeft">
+                <el-button v-if="hasPermission(['${moduleName}:${businessName}:remove'])" type="danger" size="small" icon="el-icon-delete" @click="rowDel" :disabled="selectList.length === 0">删除</el-button>
+            </template>
+            #foreach($column in $columns)
+                #set($field=$column.javaField)
+                #if($column.htmlType == "switch")
+                    <template slot-scope="scope" slot="$field">
+                        <el-tag type="success" v-if="scope.row.$field === '1'">{{scope.row.$$field}}</el-tag>
+                        <el-tag type="danger" v-else>{{scope.row.$$field}}</el-tag>
+                    </template>
+                #end
+            #end
+        </avue-crud>
+    </basic-container>
+</template>
+<script>
+    import { list${BusinessName}, del${BusinessName}, add${BusinessName}, update${BusinessName} } from "@/api/${moduleName}/${businessName}";
+    export default {
+        data() {
+            return {
+                form: {},
+                page: {
+                    currentPage: 1,
+                    total: 0,
+                    pageSize: 10
+                },
+                tableLoading: false,
+                total: 0,
+                ${businessName}List: [], // ${functionName}表格数据
+                selectList: [],
+                queryParam: {},
+            }
+        },
+        computed: {
+            option() {
+                return {
+                    border: true, // 是否显示边框
+                    stripe: true, // 是否显示斑马纹
+                    showHeader: true, // 是否显示表头
+                    index: true, // 是否显示序号
+                    indexLabel: '序号', // 序号的标题
+                    indexWidth: 50, // 序号的宽度
+                    indexFixed: true, // 序号是否冻结
+                    size: 'small', // 控件大小 可用值：medium/small/mini
+                    selection: true, // 行可勾选
+                    refreshBtn: false, // 是否显示刷新按钮
+                    page: true,
+                    align: 'center', // 表格列齐方式 可用值： left/center/right
+                    menuAlign: 'center', // 菜单栏对齐方式 可用值：left/center/right
+                    menu: this.hasPermission(['${moduleName}:${businessName}:remove']) || this.hasPermission(['${moduleName}:${businessName}:edit']), // 是否显示操作菜单栏, 其他自定义按钮自己做权限配置
+                    addBtn: true, // 是否显示添加按钮
+                    delBtn: true, // 是否显示行内删除按钮
+                    editBtn: true, // 是否显示行内编辑按钮
+                    menuPosition: 'right', // 按钮的位置 可用值： left/center/right
+                    menuWidth: 240, // 操作菜单栏的宽度
+                    dialogWidth: '40%', // 弹出框的宽度
+                    rowKey: '${pkColumn.javaField}', // 行数据的 Key的主键，用于其他相关操作
+                    labelWidth: 110, // 弹出表单的label宽度
+                    columnBtn: false, // 列显隐按钮
+                    column: [
+                        #foreach($column in $columns)
+                            #set($field=$column.javaField)
+                            #set($parentheseIndex=$column.columnComment.indexOf("（"))
+                            #if($parentheseIndex != -1)
+                                #set($comment=$column.columnComment.substring(0, $parentheseIndex))
+                            #else
+                                #set($comment=$column.columnComment)
+                            #end
+                            #set($dictType=$column.dictType)
+                            #if($column.list || $column.insert || $column.query || $column.edit)
+                        {
+                            label: '${comment}', // 列名称
+                            prop: '$field', // 列字段
+                            overHidden: true, // 超出隐藏
+                            #if(!$column.list)
+                                hide: true, // 隐藏列
+                            #end
+                            addDisplay: $column.insert, // 新增时是否显示
+                            editDisplay: $column.edit, // 编辑时是否显示
+                            search: $column.query, // 搜索
+                            #if($column.required)
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '${comment}不能为空',
+                                    trigger: 'blur'
+                                }
+                            ],
+                            #end
+                            #if($column.htmlType == "select")
+                            type: 'select',
+                            dicUrl:`${process.env.VUE_APP_BASE_API}/system/dict/data/dictType/${column.dictType}`,
+                            props: {
+                                label: 'dictLabel',
+                                value: 'dictValue'
+                            },
+                            #elseif($column.htmlType == "radio")
+                                type: 'radio',
+                                dicUrl:`${process.env.VUE_APP_BASE_API}/system/dict/data/dictType/${column.dictType}`,
+                                props: {
+                                    label: 'dictLabel',
+                                    value: 'dictValue'
+                                },
+                            #elseif($column.htmlType == "switch")
+                                type: 'switch',
+                                dicUrl:`${process.env.VUE_APP_BASE_API}/system/dict/data/dictType/${column.dictType}`,
+                                props: {
+                                    label: 'dictLabel',
+                                    value: 'dictValue'
+                                },
+                                slot: true,
+                                span: 12,
+                                value: '1',
+                                mock: {
+                                    type: 'dic'
+                                },
+                            #elseif($column.htmlType == "datetime")
+                                type: 'date',
+                                format: "yyyy-MM-dd",
+                                valueFormat: "yyyy-MM-dd",
+                            #elseif($column.htmlType == "textarea")
+                                type: 'textarea',
+                                maxRows: 4, // 最大行
+                                minRows: 2, // 最小行
+                                span: 24,
+                            #elseif($column.htmlType == "number")
+                                type: 'number',
+                            #end
+                        },
+                        #end
+                    #end
+                    ]
+                }
+            },
+            permissionList() {
+                return {
+                    addBtn: this.hasPermission(['${moduleName}:${businessName}:add']),
+                    delBtn: this.hasPermission(['${moduleName}:${businessName}:remove']),
+                    updBtn: this.hasPermission(['${moduleName}:${businessName}:edit'])
+                }
+            }
+        },
+        created() {
+            this.getList();
+        },
+        methods: {
+            /**
+             *
+             * @param list 选中行
+             */
+            selectionChange(list){
+                this.selectList = list;
+            },
+            /**
+             * 查询${functionName}列表
+             * @param 查询参数
+             */
+            getList() {
+                const query = {
+                    page: this.page.currentPage,
+                    size: this.page.pageSize,
+                    ...this.queryParam
+                };
+                this.tableLoading = true;
+                list${BusinessName}(query).then(response => {
+                    this.${businessName}List = response.data;
+                    this.page.total = response.totalElements;
+                    this.tableLoading = false;
+                })
+            },
+            /**
+             * 修改保存操作
+             * @param row
+             * @param index
+             * @param done
+             * @param loading
+             */
+            rowUpdate(row, index, done, loading) {
+                update${BusinessName}(row).then(response => {
+                    if (response.code === 200) {
+                        this.$message({
+                            type: "success",
+                            message: "修改成功!"
+                        })
+                        done();
+                        this.getList();
+                    } else {
+                        loading();
+                        this.$message({
+                            type: "error",
+                            message: response.msg
+                        })
+                    }
+                }).catch(resp => {
+                    loading();
+                    console.log(resp);
+                })
+            },
+            /**
+             * 新增保存操作
+             * @param form
+             * @param done
+             * @param loading
+             */
+            rowSave(form, done, loading) {
+                add${BusinessName}(form).then(response => {
+                    if (response.code === 200) {
+                        this.$message({
+                            type: "success",
+                            message: "新增成功!"
+                        })
+                        done();
+                        this.getList();
+                    } else {
+                        loading();
+                        this.$message({
+                            type: "error",
+                            message: response.msg
+                        })
+                    }
+                }).catch(res => {
+                    loading();
+                    console.log(res);
+                })
+            },
+            /**
+             * 行内删除操作
+             * @param row
+             */
+            rowDel(row) {
+                const _this = this
+                const ${pkColumn.javaField}s = row.${pkColumn.javaField} || _this.selectList.map(item => item.id);
+                this.$confirm('是否确认删除${functionName}编号为"' + ${pkColumn.javaField}s + '"的数据项?', "警告", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: "warning"
+                }).then(function() {
+                    return del${BusinessName}(${pkColumn.javaField}s);
+                }).then(() => {
+                    _this.getList();
+                    _this.$message({
+                        type: "success",
+                        message: "删除成功!"
+                    })
+                }).catch(function() {
+                });
+            },
+            /**
+             * 分页查询
+             * @param val
+             */
+            sizeChange(val) {
+                this.page.currentPage = 1;
+                this.page.pageSize = val;
+                this.getList();
+            },
+            /**
+             * 分页查询
+             * @param val
+             */
+            currentChange(val) {
+                this.page.currentPage = val;
+                this.getList()
+            },
+            /**
+             * 搜索按钮操作
+             * @param params
+             * @param done
+             */
+            searchChange(params,done) {
+                this.queryParam = Object.assign(this.queryParam, params);
+                this.getList();
+                done();
+            },
+            /**
+             * 搜索Form清空
+             */
+            searchReset() {
+                this.queryParam = {};
+                this.getList()
+            },
+        }
+    }
+</script>

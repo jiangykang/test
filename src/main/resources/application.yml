@@ -1,0 +1,79 @@
+# application.yml
+server:
+  port: 8081
+spring:
+  resources:
+    static-locations:
+      - classpath:resources
+      - classpath:static
+  application:
+    name: lsprevention
+  #数据库相关配置
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/bdp?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false
+    username: root
+    password: 123456
+    #如果需要做初始化,将其改为always
+    initialization-mode: never
+    data:
+      - classpath:data.sql
+    type: com.alibaba.druid.pool.DruidDataSource
+    #druid相关配置
+    druid:
+      initial-size: 3
+      min-idle: 3
+      max-active: 10
+      # 配置获取连接等待超时的时间
+      max-wait: 60000
+      # 配置 StatFilter
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 20000
+      validation-query: select 1
+  activiti:
+    check-process-definitions: false
+    database-schema-update: none
+  #模板引擎
+  thymeleaf:
+    mode: HTML
+    encoding: utf-8
+    # 禁用缓存
+    cache: false
+  #redis配置
+  redis:
+    database: 1
+    #host: 127.0.0.1
+    host: 123.56.167.108
+    port: 6379
+    timeout: 1800000
+#    password:
+
+#swagger 扫描的包路径,如果用多个用,号隔开   
+swagebasepackage: com.ls.*.controller
+mybatis-plus:
+  mapper-locations: mapper/*/*.xml
+  type-aliases-package: com.ls.*.entity
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#文件上传到阿里云配置
+oss:
+  projectname: abcd123
+  ossurl: http://lanshi-cloud-web.oss-cn-qingdao.aliyuncs.com/
+  endpoint: oss-cn-qingdao.aliyuncs.com
+  accesskeyid: abcd123
+  accesskeysecret: abcd123
+  bucketName: abcd123
+#代码生成相关配置
+gen:
+  # 作者
+  author: Min.Hu
+  # 默认生成包路径 business 需改成自己的模块名称 如 business monitor tool
+  packageName: com.ls.business
+  # 自动去除表前缀，默认是true
+  autoRemovePre: false
+  # 表前缀（生成类名不会包含表前缀，多个用逗号分隔）
+  tablePrefix: business_
+
+

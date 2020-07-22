@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ls.system.mapper.SysRoleMapper">
+
+    <resultMap type="SysRole" id="SysRoleResult">
+        <result property="id" column="id"/>
+        <result property="roleKey" column="role_key"/>
+        <result property="roleName" column="role_name"/>
+        <result property="dataScope" column="data_scope"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createUser" column="create_user"/>
+        <result property="createDate" column="create_date"/>
+        <result property="updateUserId" column="update_user_id"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="updateDate" column="update_date"/>
+        <result property="deleteFlag" column="delete_flag"/>
+        <result property="remark" column="remark"/>
+        <result property="customSort" column="custom_sort"/>
+        <result property="enableFlag" column="enable_flag"/>
+    </resultMap>
+
+    <sql id="selectSysRoleVo">
+        select id, role_key, role_name, data_scope, create_user_id, create_user, create_date, update_user_id, update_user, update_date, delete_flag, remark, custom_sort, enable_flag from sys_role
+    </sql>
+    <select id="selectSysRoleList" resultMap="SysRoleResult">
+        <include refid="selectSysRoleVo"/>
+        where role_key!="admin"
+        <if test="viewForm.roleKey != null  and viewForm.roleKey != ''">and role_key = #{viewForm.roleKey}</if>
+        <if test="viewForm.roleName != null  and viewForm.roleName != ''">and role_name like concat('%',
+            #{viewForm.roleName}, '%')
+        </if>
+        <if test="viewForm.dataScope != null  and viewForm.dataScope != ''">and data_scope = #{viewForm.dataScope}
+        </if>
+        <if test="viewForm.enableFlag != null and viewForm.enableFlag != ''  ">and enable_flag = #{viewForm.enableFlag}
+        </if>
+        order by custom_sort ASC , update_date DESC
+    </select>
+    <select id="selectAllRoleKeyByUserId" resultType="java.lang.String">
+        SELECT DISTINCT
+            r.role_key
+        FROM
+            sys_user u
+            LEFT JOIN sys_user_role ur ON u.id = ur.user_id
+            LEFT JOIN sys_role r ON r.id = ur.role_id
+            AND r.delete_flag = FALSE
+            AND r.enable_flag = TRUE
+        WHERE u.id=#{userId}
+    </select>
+    <select id="selectListByUserId" resultType="com.ls.system.vo.SysRoleVO">
+        SELECT
+            r.id,
+            r.role_name as roleName,
+            r.role_key as roleKey ,
+            r.data_scope as dataScope
+        FROM
+            sys_user u
+            LEFT JOIN sys_user_role ur ON u.id = ur.user_id
+            LEFT JOIN sys_role r ON r.id = ur.role_id
+            AND r.delete_flag = FALSE
+            AND r.enable_flag = TRUE
+        WHERE u.id=#{userId}
+    </select>
+    <select id="selectRoleAll" resultType="com.ls.system.vo.SysRoleVO">
+        SELECT
+            r.id,
+            r.role_name as roleName,
+            r.role_key as roleKey ,
+            r.data_scope as dataScope
+        FROM sys_role r WHERE r.delete_flag = FALSE
+            AND r.enable_flag = TRUE
+    </select>
+
+    <select id="selectListByRoleName" resultType="com.ls.system.entity.SysRole">
+        <include refid="selectSysRoleVo"/>
+        where role_name = #{roleName}
+    </select>
+    <select id="selectListByRoleKey" resultType="com.ls.system.entity.SysRole">
+        <include refid="selectSysRoleVo"/>
+        where role_key = #{roleKey}
+    </select>
+</mapper>

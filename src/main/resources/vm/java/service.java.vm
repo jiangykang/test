@@ -1,0 +1,50 @@
+package ${packageName}.service;
+import ${packageName}.entity.${ClassName};
+import ${packageName}.viewform.${classname}.*;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+/**
+ * ${functionName}Service接口
+ * When I wrote this, only God and I understood what I was doing
+ * Now, God only knows
+ * Good Luck
+ * @Author ${author}
+ * @date ${datetime}
+ */
+public interface ${ClassName}Service extends IService<${ClassName}>
+{
+
+    /**
+     * 查询${functionName}列表
+     *
+     * @param ${className} ${functionName}
+     * @param iPage 分页
+     * @return ${functionName}集合
+     */
+    IPage<${ClassName}> select${ClassName}List(${ClassName} ${className} ,IPage<${ClassName}> iPage);
+
+    /**
+     * 新增${functionName}
+     *
+     * @param viewForm ${functionName}
+     * @return 结果
+     */
+    Integer insert${ClassName}(${ClassName}InsertViewForm viewForm);
+
+    /**
+     * 修改${functionName}
+     *
+     * @param viewForm ${functionName}
+     * @return 结果
+     */
+    Integer update${ClassName}(${ClassName}UpdateViewForm viewForm);
+
+    /**
+     * 批量删除${functionName}
+     *
+     * @param ${pkColumn.javaField}s 需要删除的${functionName}ID
+     * @return 结果
+     */
+    Integer delete${ClassName}ByIds(${pkColumn.javaType}[] ${pkColumn.javaField}s);
+
+}

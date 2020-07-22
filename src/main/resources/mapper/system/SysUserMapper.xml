@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ls.system.mapper.SysUserMapper">
+
+    <resultMap type="com.ls.system.vo.ContextUserInfo" id="selectSysUserByUserNameResult">
+        <result property="id" column="id"/>
+        <result property="phone" column="phone"/>
+        <result property="idCard" column="id_card"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="password" column="password"/>
+        <result property="salt" column="salt"/>
+        <result property="imgPath" column="img_path"/>
+        <result property="jobNumber" column="job_number"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createUser" column="create_user"/>
+        <result property="createDate" column="create_date"/>
+        <result property="updateUserId" column="update_user_id"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="updateDate" column="update_date"/>
+        <result property="remark" column="remark"/>
+        <association property="depts" column="dept_id" javaType="com.ls.system.vo.SysDeptVO" resultMap="deptResult"/>
+        <collection property="roles" javaType="java.util.List" resultMap="RoleResult"/>
+    </resultMap>
+
+    <resultMap id="deptResult" type="com.ls.system.vo.SysDeptVO">
+        <id property="id" column="deptId"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="parentIds" column="parent_ids"/>
+        <result property="grade" column="grade"/>
+    </resultMap>
+    <resultMap id="RoleResult" type="com.ls.system.vo.SysRoleVO">
+        <id property="id" column="roleId"/>
+        <result property="roleKey" column="role_key"/>
+        <result property="roleName" column="role_name"/>
+        <result property="dataScope" column="data_scope"/>
+    </resultMap>
+
+
+    <select id="selectUserByAccount" parameterType="String" resultMap="selectSysUserByUserNameResult">
+        SELECT
+            u.id,
+            u.phone,
+            u.id_card,
+            u.job_number,
+            u.dept_id,
+            u.user_name,
+            u.password,
+            u.salt,
+            u.img_path,
+            u.create_user_id,
+            u.create_user,
+            u.create_date,
+            u.update_user_id,
+            u.update_user,
+            u.update_date,
+            u.remark,
+            d.id AS "deptId",
+            d.dept_name,
+            d.parent_id,
+            d.parent_ids,
+            d.grade,
+            r.id AS "roleId",
+            r.role_key,
+            r.role_name,
+            r.data_scope
+        FROM
+            sys_user u
+            LEFT JOIN sys_dept d ON u.dept_id = d.id
+            AND d.delete_flag = FALSE
+            AND d.enable_flag =
+            TRUE LEFT JOIN sys_user_role ur ON u.id = ur.user_id
+            LEFT JOIN sys_role r ON r.id = ur.role_id
+            AND r.delete_flag = FALSE
+            AND r.enable_flag = TRUE
+        WHERE
+            u.delete_flag = FALSE
+            AND u.enable_flag = TRUE
+            AND (u.phone = #{account} OR u.job_number = #{account} OR u.id_card = #{account})
+    </select>
+
+    <resultMap type="SysUser" id="SysUserResult">
+        <result property="id" column="id"/>
+        <result property="phone" column="phone"/>
+        <result property="jobNumber" column="job_number"/>
+        <result property="idCard" column="id_card"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="userName" column="user_name"/>
+        <result property="password" column="password"/>
+        <result property="salt" column="salt"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createUser" column="create_user"/>
+        <result property="createDate" column="create_date"/>
+        <result property="updateUserId" column="update_user_id"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="updateDate" column="update_date"/>
+        <result property="deleteFlag" column="delete_flag"/>
+        <result property="imgPath" column="img_path"/>
+        <result property="remark" column="remark"/>
+        <result property="customSort" column="custom_sort"/>
+        <result property="enableFlag" column="enable_flag"/>
+        <association property="sysDept" column="dept_id" javaType="com.ls.system.entity.SysDept"
+                     resultMap="deptResult2"/>
+        <collection property="roles" javaType="java.util.List" resultMap="RoleResult2"/>
+    </resultMap>
+    <resultMap id="deptResult2" type="com.ls.system.entity.SysDept">
+        <id property="id" column="deptId"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="parentIds" column="parent_ids"/>
+        <result property="grade" column="grade"/>
+    </resultMap>
+    <resultMap id="RoleResult2" type="java.lang.String">
+        <id property="id" column="role_id"/>
+    </resultMap>
+    <sql id="selectSysUserVo">
+        select id, phone, id_card, job_number,img_path, dept_id, user_name, password, salt,  create_user_id, create_user, create_date, update_user_id, update_user, update_date, delete_flag, remark, custom_sort, enable_flag from sys_user
+    </sql>
+    <select id="selectSysUserList" resultMap="SysUserResult">
+        SELECT
+        u.id,
+        u.phone,
+        u.id_card,
+        u.job_number,
+        u.img_path,
+        u.dept_id,
+        u.dept_name,
+        u.user_name,
+        u.create_user_id,
+        u.create_user,
+        u.create_date,
+        u.update_user_id,
+        u.update_user,
+        u.update_date,
+        u.delete_flag,
+        u.remark,
+        u.custom_sort,
+        u.enable_flag,
+        d.id AS "deptId",
+        d.dept_name,
+        d.parent_id,
+        d.parent_ids,
+        d.grade,
+        ur.role_id
+        FROM
+        sys_user u
+        LEFT JOIN sys_dept d ON u.dept_id = d.id
+        AND d.delete_flag = FALSE
+        AND d.enable_flag =
+        TRUE LEFT JOIN sys_user_role ur ON ur.user_id = u.id
+        WHERE
+        u.job_number != "admin"
+        <if test="viewForm.phone != null ">and u.phone = #{viewForm.phone}</if>
+        <if test="viewForm.jobNumber != null ">and u.job_number = #{viewForm.jobNumber}</if>
+        <if test="viewForm.idCard != null  and viewForm.idCard != ''">and u.id_card = #{viewForm.idCard}</if>
+        <if test="viewForm.deptId != null  and viewForm.deptId != ''">and u.dept_id in (SELECT de.id from sys_dept de
+            where de.parent_ids like concat('%', #{viewForm.deptId}, '%') or de.id=#{viewForm.deptId})
+        </if>
+        <if test="viewForm.enableFlag != null and viewForm.enableFlag != '' ">and u.enable_flag =
+            #{viewForm.enableFlag}
+        </if>
+        <if test="viewForm.userName != null  and viewForm.userName != ''">and u.user_name like concat('%',
+            #{viewForm.userName}, '%')
+        </if>
+        order by u.custom_sort ASC , u.update_date DESC
+    </select>
+    <select id="selectAllId" resultType="java.lang.String">
+        SELECT
+            id
+        FROM
+            sys_user
+    </select>
+
+</mapper>

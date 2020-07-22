@@ -1,0 +1,53 @@
+package ${packageName}.entity;
+import lombok.Data;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.ls.system.entity.common.PreventionCommonEntity;
+import java.util.Map;
+#foreach ($import in $importList)
+import ${import};
+#end
+
+/**
+ * ${functionName}对象 ${tableName}
+ * When I wrote this, only God and I understood what I was doing
+ * Now, God only knows
+ * Good Luck
+ * @Author ${author}
+ * @date ${datetime}
+ */
+#set($Entity="BaseEntity")
+@Data
+public class ${ClassName} extends PreventionCommonEntity{
+
+#foreach ($column in $columns)
+#if(!$table.isSuperColumn($column.javaField))
+    /**
+     * $column.columnComment
+     */
+#if($column.list)
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+    #set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+    #set($comment=$column.columnComment)
+#end
+#if($parentheseIndex != -1)
+#elseif($column.javaType == 'Date')
+#if($column.columnType=="datetime")
+      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+#elseif($column.columnType=="date")
+      @DateTimeFormat(pattern = "yyyy-MM-dd")
+#else
+      @DateTimeFormat(pattern = "HH:mm:ss")#end
+#else
+#end
+#end
+    private #if($column.javaType == 'Date') #if($column.columnType=="datetime") LocalDateTime #elseif($column.columnType=="date")LocalDate #else LocalTime #end#else$column.javaType#end $column.javaField;
+
+#end#end
+    /**
+     * 请求参数
+     */
+    @TableField(exist = false)
+    private Map<String, Object> params;
+}

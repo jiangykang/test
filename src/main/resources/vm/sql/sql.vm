@@ -1,0 +1,19 @@
+-- 菜单 SQL
+insert into sys_menu (id, menu_name, parent_id, custom_sort, path, component, is_frame, menu_type, visible, permission, icon, create_user_id, create_user, create_date, update_user_id, update_user, update_date, delete_flag, remark)
+values(REPLACE(UUID(),"-",""), '${functionName}', '3', '1', '${businessName}', '${moduleName}/${businessName}/index', 0, 'C', '1', '${permissionPrefix}:list', '#', '1001', 'admin', sysdate(), '1001', 'admin', sysdate(), false, '${functionName}菜单');
+
+-- 按钮父菜单ID
+SELECT  @parentId := (SELECT id from sys_menu where component='${moduleName}/${businessName}/index')
+
+-- 按钮 SQL
+insert into sys_menu  (id, menu_name, parent_id, parent_name, custom_sort, path, component, is_frame, menu_type, visible, permission, icon, create_user_id, create_user, create_date, update_user_id, update_user, update_date, delete_flag, remark)
+values(REPLACE(UUID(),"-",""), '${functionName}查询', @parentId, '${functionName}','1',  '#', '', 0,  'F', '1', '${permissionPrefix}:query',         '#', '1001', 'admin', sysdate(), '1001', 'admin', sysdate(), false, '');
+
+insert into sys_menu  (id, menu_name, parent_id, parent_name, custom_sort, path, component, is_frame, menu_type, visible, permission, icon, create_user_id, create_user, create_date, update_user_id, update_user, update_date, delete_flag, remark)
+values(REPLACE(UUID(),"-",""), '${functionName}新增', @parentId, '${functionName}','2',  '#', '', 0,  'F', '1', '${permissionPrefix}:add',          '#', '1001', 'admin', sysdate(), '1001', 'admin', sysdate(), false, '');
+
+insert into sys_menu  (id, menu_name, parent_id, parent_name, custom_sort, path, component, is_frame, menu_type, visible, permission, icon, create_user_id, create_user, create_date, update_user_id, update_user, update_date, delete_flag, remark)
+values(REPLACE(UUID(),"-",""), '${functionName}修改', @parentId, '${functionName}','3',  '#', '', 0,  'F', '1', '${permissionPrefix}:edit',         '#', '1001', 'admin', sysdate(), '1001', 'admin', sysdate(), false, '');
+
+insert into sys_menu  (id, menu_name, parent_id, parent_name, custom_sort, path, component, is_frame, menu_type, visible, permission, icon, create_user_id, create_user, create_date, update_user_id, update_user, update_date, delete_flag, remark)
+values(REPLACE(UUID(),"-",""), '${functionName}删除', @parentId, '${functionName}','4',  '#', '', 0,  'F', '1', '${permissionPrefix}:remove',       '#', '1001', 'admin', sysdate(), '1001', 'admin', sysdate(), false, '');

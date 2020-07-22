@@ -1,0 +1,31 @@
+package ${packageName}.mapstruct;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mappings;
+import org.mapstruct.factory.Mappers;
+import ${packageName}.entity.${ClassName};
+import ${packageName}.viewform.${classname}.*;
+
+/**
+ * ${functionName}ViewForm转化为实体
+ * When I wrote this, only God and I understood what I was doing
+ * Now, God only knows
+ * Good Luck
+ * @Author ${author}
+ * @date ${datetime}
+ */
+@Mapper
+public interface ${ClassName}MapStruct {
+
+    ${ClassName}MapStruct INSTANCE = Mappers.getMapper(${ClassName}MapStruct.class);
+
+
+    @Mappings({})
+    ${ClassName} insertViewFormTo${ClassName}(${ClassName}InsertViewForm viewForm);
+
+    @Mappings({})
+    ${ClassName} updateViewFormTo${ClassName}(${ClassName}UpdateViewForm viewForm);
+
+    @Mappings({})
+    ${ClassName} listViewFormTo${ClassName}(${ClassName}ListViewForm viewForm);
+
+}

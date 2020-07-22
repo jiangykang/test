@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ls.system.mapper.SysDeptMapper">
+
+    <resultMap type="SysDept" id="SysDeptResult">
+        <result property="id" column="id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="parentIds" column="parent_ids"/>
+        <result property="grade" column="grade"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createUser" column="create_user"/>
+        <result property="createDate" column="create_date"/>
+        <result property="updateUserId" column="update_user_id"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="updateDate" column="update_date"/>
+        <result property="deleteFlag" column="delete_flag"/>
+        <result property="remark" column="remark"/>
+        <result property="customSort" column="custom_sort"/>
+        <result property="enableFlag" column="enable_flag"/>
+    </resultMap>
+
+    <sql id="selectSysDeptVo">
+        select d.id, d.dept_name, d.parent_id, d.parent_ids, d.grade, d.create_user_id, d.create_user, d.create_date, d.update_user_id, d.update_user, d.update_date, d.delete_flag, d.remark, d.custom_sort, d.enable_flag from sys_dept d
+    </sql>
+    <update id="updateDeptChildren">
+        update sys_dept set parent_ids =
+        <foreach collection="depts" item="item" index="index"
+                 separator=" " open="case id" close="end">
+            when #{item.id} then #{item.parentIds}
+        </foreach>
+        where id in
+        <foreach collection="depts" item="item" index="index"
+                 separator="," open="(" close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
+    <select id="selectSysDeptList" resultMap="SysDeptResult">
+        <include refid="selectSysDeptVo"/>
+        <where>
+            <if test="entity.deptName != null  and entity.deptName != ''">and d.dept_name like concat('%',
+                #{entity.deptName}, '%')
+            </if>
+            <if test="entity.parentId != null  and entity.parentId != ''">and d.parent_id = #{entity.parentId}</if>
+            <if test="entity.enableFlag != null and entity.enableFlag != '' ">and d.enable_flag =
+                #{entity.enableFlag}
+            </if>
+            <if test="entity.parentIds != null  and entity.parentIds != ''">and d.parent_ids = #{entity.parentIds}
+            </if>
+            <if test="entity.grade != null ">and d.grade = #{entity.grade}</if>
+            <if test="entity.dataScope != null  and entity.dataScope != ''">${entity.dataScope}</if>
+        </where>
+        order by d.custom_sort ASC
+    </select>
+    <select id="selectDeptList" resultType="com.ls.system.vo.SysDeptVO">
+        select d.id, d.dept_name, d.parent_id, d.parent_ids, d.grade
+        from sys_dept d
+        where d.delete_flag=false
+        <if test="entity.parentId != null and entity.parentId != 0">
+            AND d.parent_id = #{entity.parentId}
+        </if>
+        <if test="entity.enableFlag != null and entity.enableFlag != '' and entity.enableFlag != '0'">
+            AND d.enable_flag = #{entity.enableFlag}
+        </if>
+        <if test="entity.deptName != null and entity.deptName != ''">
+            AND d.dept_name like concat('%', #{entity.deptName}, '%')
+        </if>
+        <!-- 数据范围过滤 -->
+        ${entity.dataScope}
+        order by d.parent_id, d.custom_sort
+    </select>
+    <select id="selectDeptListByRoleId" resultType="java.lang.Integer">
+        SELECT
+            d.id,
+            d.parent_id
+        FROM
+            sys_dept d
+            LEFT JOIN sys_role_dept rd ON d.id = rd.dept_id
+        WHERE
+            rd.role_id = #{roleId}
+            AND d.id NOT IN ( SELECT d.parent_id FROM sys_dept d INNER JOIN sys_role_dept rd ON d.id = rd.dept_id AND rd.role_id = #{roleId} )
+        ORDER BY
+            d.parent_id,
+            d.custom_sort
+    </select>
+    <select id="checkDeptNameUnique" resultType="com.ls.system.entity.SysDept">
+        <include refid="selectSysDeptVo"/>
+        where d.dept_name=#{deptName} and d.parent_id = #{parentId}
+    </select>
+    <select id="selectChildrenDeptById" resultType="com.ls.system.entity.SysDept">
+        select * from sys_dept where find_in_set(#{deptId}, parent_ids)
+    </select>
+    <select id="hasChildByDeptId" resultType="java.lang.Integer">
+        select count(1) from sys_dept
+		where delete_flag = false and parent_id = #{id}
+    </select>
+    <select id="checkDeptExistUser" resultType="java.lang.Integer">
+        select count(1) from sys_user where dept_id = #{id} and delete_flag = false
+    </select>
+    <select id="selectAllId" resultType="java.lang.String">
+        SELECT
+            id
+        FROM
+            sys_dept
+    </select>
+    <select id="getListByParentId" resultType="com.ls.system.vo.SysDeptVO">
+        select d.id, d.dept_name, d.parent_id, d.parent_ids, d.grade, d.create_user_id, d.create_user, d.create_date, d.update_user_id, d.update_user, d.update_date, d.delete_flag, d.remark, d.custom_sort, d.enable_flag from sys_dept d
+        where d.parent_id = #{entity.parentId} and d.delete_flag=false
+        ${entity.dataScope}
+    </select>
+
+</mapper>

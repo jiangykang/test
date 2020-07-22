@@ -1,0 +1,111 @@
+package ${packageName}.controller;
+
+import java.util.List;
+
+import com.ls.system.enums.BusinessType;
+import com.ls.system.interceptor.annotation.Log;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import ${packageName}.entity.${ClassName};
+import ${packageName}.viewform.${classname}.*;
+import ${packageName}.service.${ClassName}Service;
+import ${packageName}.mapstruct.${ClassName}MapStruct;
+import com.ls.system.config.ResponseResult;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+/**
+ * ${functionName} Controller
+ * When I wrote this, only God and I understood what I was doing
+ * Now, God only knows
+ * Good Luck
+ *
+ * @Author ${author}
+ * @date ${datetime}
+ */
+@Api(tags = {"业务 ${functionName} 管理"})
+@RestController
+@RequestMapping("/${moduleName}/${className}")
+public class ${ClassName}Controller {
+    @Autowired
+    private ${ClassName}Service ${className}Service;
+
+    /**
+     * 查询${functionName}列表
+     */
+    @ApiOperation("查询${functionName}列表")
+    @GetMapping("/list")
+    @RequiresPermissions("${moduleName}:${businessName}:list")
+    public ResponseResult list(` ${ClassName}ListViewForm viewForm, @RequestParam(value = "page") Integer page, @RequestParam(value = "size") Integer size) {
+        ${ClassName} ${className} =${ClassName}MapStruct.INSTANCE.listViewFormTo${ClassName}(viewForm);
+        IPage<${ClassName}> iPage = new Page<>(page, size);
+        /* Wrapper<${ClassName}> wrapper = new QueryWrapper<>(${className});
+        IPage<${ClassName}> list = ${className}Service.page(iPage, wrapper);*/
+        IPage<${ClassName}> list = ${className}Service.select${ClassName}List(${className} , iPage);
+        return ResponseResult.success(list, "查询成功");
+    }
+
+    /**
+     * 获取${functionName}详细信息
+     */
+    @ApiOperation("获取${functionName}详细信息")
+    @GetMapping(value = "/{${pkColumn.javaField}}")
+    @RequiresPermissions("${moduleName}:${businessName}:query")
+    public ResponseResult info(@PathVariable("${pkColumn.javaField}") ${pkColumn.javaType} ${pkColumn.javaField}) {
+        return ResponseResult.success(${className}Service.getById(${pkColumn.javaField}));
+    }
+
+    /**
+     * 新增${functionName}
+     */
+    @PostMapping(value = "/insert")
+    @ApiOperation("新增${functionName}")
+    @Log(title = "新增${functionName}", businessType = BusinessType.INSERT)
+    @RequiresPermissions("${moduleName}:${businessName}:add")
+    public ResponseResult insert(@RequestBody @Validated ${ClassName}InsertViewForm viewForm) {
+        Integer count = ${className}Service.insert${ClassName}(viewForm);
+        if (count>0){
+            return ResponseResult.successMsg("新增成功");
+        }else {
+            return ResponseResult.failure("新增失败");
+        }
+    }
+
+    /**
+     * 修改${functionName}
+     */
+    @PutMapping(value = "/update")
+    @ApiOperation("修改${functionName}")
+    @Log(title = "修改${functionName}", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("${moduleName}:${businessName}:edit")
+    public ResponseResult update(@RequestBody @Validated ${ClassName}UpdateViewForm viewForm) {
+        Integer count = ${className}Service.update${ClassName}(viewForm);
+        if (count>0){
+            return ResponseResult.successMsg("修改成功");
+        }else {
+            return ResponseResult.failure("修改失败");
+        }
+    }
+
+    /**
+     * 删除${functionName}
+     */
+    @DeleteMapping("/delete/{${pkColumn.javaField}s}")
+    @ApiOperation("删除${functionName}")
+    @RequiresPermissions("${moduleName}:${businessName}:remove")
+    @Log(title = "删除${functionName}", businessType = BusinessType.DELETE)
+    public ResponseResult delete(@PathVariable ${pkColumn.javaType}[] ${pkColumn.javaField}s) {
+        Integer count = ${className}Service.delete${ClassName}ByIds(${pkColumn.javaField}s);
+        if (count>0){
+            return ResponseResult.successMsg("删除成功");
+        }else {
+            return ResponseResult.failure("删除失败");
+        }
+    }
+}

@@ -1,0 +1,97 @@
+package ${packageName}.service.impl;
+
+import java.util.List;
+#foreach ($column in $columns)
+#if($column.javaField == 'createDate' || $column.javaField == 'updateDate')
+import java.time.LocalDateTime;#break
+#end
+#end
+import com.ls.system.interceptor.annotation.DataScope;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import ${packageName}.mapper.${ClassName}Mapper;
+import ${packageName}.entity.${ClassName};
+import ${packageName}.viewform.${classname}.*;
+import ${packageName}.service.${ClassName}Service;
+import ${packageName}.mapstruct.${ClassName}MapStruct;
+import java.util.Arrays;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import org.springframework.transaction.annotation.Transactional;
+/**
+ * ${functionName}Service业务层处理
+ *
+ * @Author ${author}
+ * @date ${datetime}
+ */
+@Service
+@Transactional(rollbackFor = Exception.class)
+public class ${ClassName}ServiceImpl extends ServiceImpl<${ClassName}Mapper, ${ClassName}>  implements ${ClassName}Service {
+    @Autowired
+    private ${ClassName}Mapper ${className}Mapper;
+
+    /**
+     * 查询${functionName}列表
+     *
+     * @param ${className} ${functionName}
+     * @param iPage 分页
+     * @return ${functionName}
+     */
+    @Override
+    @DataScope(deptAlias = "a")
+    public IPage<${ClassName}> select${ClassName}List(${ClassName} ${className} ,IPage<${ClassName}> iPage)
+    {
+        return ${className}Mapper.select${ClassName}List(${className} ,iPage);
+    }
+
+
+    /**
+     * 新增${functionName}
+     *
+     * @param ${className} ${functionName}
+     * @return 结果
+     */
+    @Override
+    public Integer insert${ClassName}(${ClassName}InsertViewForm viewForm) {
+
+        ${ClassName} ${className} = ${ClassName}MapStruct.INSTANCE.insertViewFormTo${ClassName}(viewForm);
+
+        //以下内容会写成公共方法
+        ${className}.preInsert();
+
+        Integer count=${className}Mapper.insert(${className});
+        return count;
+    }
+
+    /**
+     * 修改${functionName}
+     *
+     * @param ${className} ${functionName}
+     * @return 结果
+     */
+    @Override
+    public Integer update${ClassName}(${ClassName}UpdateViewForm viewForm) {
+
+        ${ClassName} ${className}  = ${ClassName}MapStruct.INSTANCE.updateViewFormTo${ClassName}(viewForm);
+        ${className}.preUpdate();
+
+        Integer count= ${className}Mapper.updateById(${className});
+        return count;
+    }
+
+    /**
+     * 批量删除${functionName}
+     *
+     * @param ${pkColumn.javaField}s 需要删除的${functionName}ID
+     * @return 结果
+     */
+    @Override
+    public Integer delete${ClassName}ByIds(${pkColumn.javaType}[] ${pkColumn.javaField}s) {
+
+        List<String> list = Arrays.asList(${pkColumn.javaField}s);
+        //此处是真实删除  后期根据业务 可自由定义成逻辑删除
+        Integer count= ${className}Mapper.deleteBatchIds(list);
+        return count;
+    }
+
+}

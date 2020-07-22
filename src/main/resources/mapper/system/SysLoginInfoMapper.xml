@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ls.system.mapper.SysLoginInfoMapper">
+
+
+    <update id="cleanLoginInfo">
+        truncate table sys_login_info
+    </update>
+
+    <select id="selectLoginInfoList" resultType="com.ls.system.entity.SysLoginInfo">
+        select info_id, user_name, ip_add, login_location, browser, os, status, msg, login_time from sys_login_info
+        <where>
+            <if test="viewForm.ipAdd != null and viewForm.ipAdd != ''">
+                AND ip_add like concat('%', #{viewForm.ipAdd}, '%')
+            </if>
+            <if test="viewForm.status != null and viewForm.status != ''">
+                AND status = #{viewForm.status}
+            </if>
+            <if test="viewForm.userName != null and viewForm.userName != ''">
+                AND user_name like concat('%', #{viewForm.userName}, '%')
+            </if>
+            <if test="viewForm.beginTime != null "><!-- 开始时间检索 -->
+                and login_time &gt;= #{viewForm.beginTime}
+            </if>
+            <if test="viewForm.endTime != null "><!-- 结束时间检索 -->
+                and login_time &lt;= #{viewForm.endTime}
+            </if>
+        </where>
+        order by login_time desc
+    </select>
+</mapper>

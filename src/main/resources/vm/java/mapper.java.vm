@@ -1,0 +1,25 @@
+package ${packageName}.mapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import ${packageName}.entity.${ClassName};
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+/**
+ * ${functionName}Mapper接口
+ * When I wrote this, only God and I understood what I was doing
+ * Now, God only knows
+ * Good Luck
+ * @Author ${author}
+ * @date ${datetime}
+ */
+@Repository
+public interface ${ClassName}Mapper extends BaseMapper<${ClassName}>  {
+    /**
+     * 查询${functionName}列表
+     *
+     * @param ${className} ${functionName}
+     * @param iPage 分页
+     * @return ${functionName}分页集合
+     */
+    IPage<${ClassName}> select${ClassName}List(@Param("entity")${ClassName} entity , IPage<${ClassName}> iPage);
+}

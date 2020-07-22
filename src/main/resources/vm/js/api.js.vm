@@ -1,0 +1,44 @@
+import request from '@/router/axios'
+
+// 查询${functionName}列表
+export function list${BusinessName}(params) {
+  return request({
+    url: '/${moduleName}/${className}/list',
+    method: 'get',
+    params
+  })
+}
+
+// 查询${functionName}详细
+export function get${BusinessName}(${pkColumn.javaField}) {
+  return request({
+    url: '/${moduleName}/${className}/' + ${pkColumn.javaField},
+    method: 'get'
+  })
+}
+
+// 新增${functionName}
+export function add${BusinessName}(data) {
+  return request({
+    url: '/${moduleName}/${className}/insert',
+    method: 'post',
+    data: data
+  })
+}
+
+// 修改${functionName}
+export function update${BusinessName}(data) {
+  return request({
+    url: '/${moduleName}/${className}/update',
+    method: 'put',
+    data: data
+  })
+}
+
+// 删除${functionName}
+export function del${BusinessName}(${pkColumn.javaField}) {
+  return request({
+    url: '/${moduleName}/${className}/delete' + ${pkColumn.javaField},
+    method: 'delete'
+  })
+}

@@ -1,0 +1,60 @@
+package ${packageName}.viewform.${classname};
+import lombok.Data;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModel;
+import java.util.Map;
+#foreach ($import in $importList)
+import ${import};
+#end
+
+/**
+ * ${functionName}对象 ${tableName}  ViewForm
+ * When I wrote this, only God and I understood what I was doing
+ * Now, God only knows
+ * Good Luck
+ * @Author ${author}
+ * @date ${datetime}
+ */
+#set($Entity="BaseEntity")
+    @Data
+    @ApiModel("${functionName}对象查询参数")
+    public class ${ClassName}ListViewForm {
+
+#foreach ($column in $columns)
+#if($column.isQuery=="1")
+
+#if(!$table.isSuperColumn($column.javaField))
+    /**
+    * $column.columnComment
+    */
+#if($column.list)
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#if($parentheseIndex != -1)
+#elseif($column.javaType == 'Date')
+#if($column.columnType=="datetime")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+#elseif($column.columnType=="date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+#else
+    @DateTimeFormat(pattern = "HH:mm:ss")#end
+#else
+#end
+#end
+    @ApiModelProperty(value = "$column.columnComment" )
+    private #if($column.javaType == 'Date') #if($column.columnType=="datetime") LocalDateTime #elseif($column.columnType=="date")LocalDate #else LocalTime #end#else$column.javaType#end $column.javaField;
+#end
+#end
+#end
+    @ApiModelProperty(hidden = true)
+    private String dataScope;
+    /**
+     * 请求参数
+     */
+    @ApiModelProperty(value = "请求参数")
+    private Map<String, Object> params;
+}
