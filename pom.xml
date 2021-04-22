@@ -19,7 +19,7 @@
         <mysql.version>5.1.47</mysql.version>
         <mybatis-plus.version>3.3.1</mybatis-plus.version>
         <mapstruct.version>1.2.0.Final</mapstruct.version>
-        <shiro.version>1.4.0</shiro.version>
+        <shiro.version>1.7.0</shiro.version>
         <redis-shiro.version>3.2.3</redis-shiro.version>
         <velocity.version>1.7</velocity.version>
         <oshi.version>3.9.1</oshi.version>
